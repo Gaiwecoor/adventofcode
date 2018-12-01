@@ -1,0 +1,19 @@
+{
+  "name": "adventofcode2018",
+  "version": "0.1.0",
+  "description": "My solutions for Advent of Code 2018",
+  "main": "\"\"",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gaiwecoor/adventofcode2018.git"
+  },
+  "author": "Kevin \"Gaiwecoor\" Dixon",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Gaiwecoor/adventofcode2018/issues"
+  },
+  "homepage": "https://github.com/Gaiwecoor/adventofcode2018#readme"
+}

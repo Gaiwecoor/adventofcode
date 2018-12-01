@@ -1,8 +1,8 @@
 {
   "name": "adventofcode2018",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "My solutions for Advent of Code 2018",
-  "main": "\"\"",
+  "main": "solve.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

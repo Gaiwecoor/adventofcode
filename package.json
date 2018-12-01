@@ -1,6 +1,6 @@
 {
   "name": "adventofcode2018",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "My solutions for Advent of Code 2018",
   "main": "\"\"",
   "scripts": {

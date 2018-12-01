@@ -1,5 +1,5 @@
 const fs = require("fs");
-const changes = fs.readFileSync("./input_01.txt", "utf8")
+const changes = fs.readFileSync("../input/input_01.txt", "utf8")
   .split("\n")
   .filter(c => c)
   .map(c => parseInt(c, 10));

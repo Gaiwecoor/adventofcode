@@ -1,7 +1,7 @@
 const fs = require("fs");
 const input = fs.readFileSync(__dirname + "/../input/input_02.txt", "utf8")
-  .split("\n")
-  .filter(c => c);
+  .trim()
+  .split("\n");
 
 // Part 1
 

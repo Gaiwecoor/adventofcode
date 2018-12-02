@@ -1,7 +1,7 @@
 const fs = require("fs");
 const changes = fs.readFileSync(__dirname + "/../input/input_01.txt", "utf8")
+  .trim()
   .split("\n")
-  .filter(c => c)
   .map(c => parseInt(c, 10));
 const log = new Map([[0, 0]]);
 

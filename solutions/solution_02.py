@@ -27,10 +27,8 @@ def part2():
     input = getInput()
     codes = [x.strip() for x in input]
 
-    i = 0
-    while i < len(codes) - 1:
-        j = i + 1
-        while j < len(codes):
+    for i in range(len(codes) - 1):
+        for j in range(i + 1, len(codes)):
             a = codes[i]
             b = codes[j]
             diff = 0
@@ -44,5 +42,3 @@ def part2():
                     break
             if diff == 1:
                 return same
-            j = j + 1
-        i = i + 1

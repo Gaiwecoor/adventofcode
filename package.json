@@ -1,6 +1,6 @@
 {
   "name": "adventofcode2018",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "My solutions for Advent of Code 2018",
   "main": "solve.js",
   "scripts": {

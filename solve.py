@@ -8,9 +8,17 @@ if len(sys.argv) > 1:
     if len(day) == 1:
         day = "0" + day
 
-    print("Advent of Code - Day %s (Python)" % day)
+    if len(sys.argv) > 2:
+        year = sys.argv[2]
+    else:
+        year = "2018"
+
+    if len(year) == 2:
+        year = "20" + year
+
+    print("%s Advent of Code - Day %s (Python)" % (year, day))
     t = time()
-    sol = import_module("solutions.solution_" + day)
+    sol = import_module(year + ".solutions.solution_" + day)
     t1 = time()
     print("Part 1: " + str(sol.part1()))
     print("Part 1: %fms" % (1000 * (time() - t1)))

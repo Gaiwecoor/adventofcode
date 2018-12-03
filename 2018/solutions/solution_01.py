@@ -1,4 +1,4 @@
-with open("./input/input_01.txt") as f:
+with open("./2018/input/input_01.txt") as f:
     lines = f.read().splitlines()
 
 # Part 1
@@ -7,7 +7,7 @@ def part1():
 
 # Part 2
 log = set([0])
-def mypart2(sum = 0):
+def part2(sum = 0):
     for shift in lines:
         sum = sum + int(shift)
         if sum in log:

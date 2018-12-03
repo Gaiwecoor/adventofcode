@@ -6,7 +6,7 @@ Y = 2
 W = 3
 H = 4
 
-with open("./input/input_03.txt") as f:
+with open("./2018/input/input_03.txt") as f:
     lines = f.read().splitlines()
 
 #pattern = re.compile("#(\d+) @ (\d+),(\d+): (\d+)x(\d+)")

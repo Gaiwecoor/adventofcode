@@ -8,6 +8,7 @@ if len(sys.argv) > 1:
     if len(day) == 1:
         day = "0" + day
 
+    print("Advent of Code - Day %s (Python)" % day)
     t = time()
     sol = import_module("solutions.solution_" + day)
     t1 = time()

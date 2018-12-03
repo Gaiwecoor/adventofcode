@@ -6,7 +6,7 @@ if (day) {
     if (day.length == 1) day = "0" + day;
     console.time("Complete");
     const solution = require(`./solutions/solution_${day}`);
-    console.log("Day", day);
+    console.log(`Advent of Code - Day ${day} (Node)`);
     console.time("Part 1");
     console.log("Part 1:", solution.part1());
     console.timeEnd("Part 1");

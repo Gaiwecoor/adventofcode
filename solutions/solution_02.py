@@ -1,14 +1,12 @@
-def getInput():
-    return open("./input/input_02.txt")
+with open("./input/input_02.txt") as f:
+    lines = f.read().splitlines()
 
 # Part 1
 def part1():
-    input = getInput()
-
     double = 0
     triple = 0
 
-    for line in input:
+    for line in lines:
         values = {}
         for letter in line:
             if letter in values:
@@ -24,13 +22,10 @@ def part1():
 
 # Part 2
 def part2():
-    input = getInput()
-    codes = [x.strip() for x in input]
-
-    for i in range(len(codes) - 1):
-        for j in range(i + 1, len(codes)):
-            a = codes[i]
-            b = codes[j]
+    for i in range(len(lines) - 1):
+        for j in range(i + 1, len(lines)):
+            a = lines[i]
+            b = lines[j]
             diff = 0
             same = ""
             for k in range(len(a)):

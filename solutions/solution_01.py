@@ -1,22 +1,17 @@
-def getInput():
-    return open("./input/input_01.txt")
+with open("./input/input_01.txt") as f:
+    lines = f.read().splitlines()
 
 # Part 1
 def part1():
-    input = getInput()
-    shifts = 0
-    for shift in input:
-        shifts = shifts + int(shift)
-    return shifts
+    return sum(list(map(int, lines)))
 
 # Part 2
-log = {"0" : True}
-def part2(sum = 0):
-    input = getInput()
-    for shift in input:
+log = set([0])
+def mypart2(sum = 0):
+    for shift in lines:
         sum = sum + int(shift)
-        if str(sum) in log:
+        if sum in log:
             return sum
         else:
-            log[str(sum)] = True
+            log.add(sum)
     return part2(sum)

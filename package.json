@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Gaiwecoor/adventofcode2018/issues"
   },
-  "homepage": "https://github.com/Gaiwecoor/adventofcode2018#readme"
+  "homepage": "https://github.com/Gaiwecoor/adventofcode2018#readme",
+  "dependencies": {
+    "md5": "^2.2.1"
+  }
 }

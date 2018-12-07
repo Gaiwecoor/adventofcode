@@ -2,6 +2,8 @@ const fs = require("fs");
 const input = fs.readFileSync(__dirname + "/../input/input_06.txt", "utf8")
   .trim().split("\n").map(c => c.split(", ").map(d => parseInt(d, 10)));
 
+const {Set} = require("./utils");
+
 const X = 0, Y = 1;
 
 const max = input.reduce((max, pt) => [Math.max(max[X], pt[X]), Math.max(max[Y], pt[Y])], [0, 0]);
@@ -16,17 +18,6 @@ const u = {
   dist: (a, b) => Math.abs(a[X] - b[X]) + Math.abs(a[Y] - b[Y]),
   minValue: (array) => Math.min(...array),
   minIndex: (array) => array.indexOf(Math.min(...array))
-}
-
-const Set = function(values = []) {
-  this.values = values;
-  this.add = (value) => {
-    if (!this.values.includes(value)) this.values.push(value);
-    return this.values;
-  }
-  this.includes = (element) => this.values.includes(element),
-  this.remove = (value) => this.values = this.values.filter(e => e !== value);
-  return this;
 }
 
 // Part 1

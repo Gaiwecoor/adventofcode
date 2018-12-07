@@ -18,7 +18,7 @@ const input = fs.readFileSync(__dirname + "/../input/input_07.txt", "utf8")
 class Instructions extends Tree {
   constructor(nodeMap) {
     super(nodeMap);
-    for (const [index, node] of this.nodes) {
+    for (const [index, node] of this) {
       node.value = {
         time: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(index) + config.workTime + 1,
         assigned: false
@@ -27,7 +27,7 @@ class Instructions extends Tree {
   }
 
   get available() {
-    return this.nodes
+    return this
       .filter(n => n.root && !n.value.assigned)
       .toArray()
       .sort((a, b) => a.index.localeCompare(b.index));
@@ -37,8 +37,8 @@ class Instructions extends Tree {
     let book = "";
     let steps = this.clone();
     let iterations = 0;
-    while (steps.nodes.size > 0) {
-      let available = steps.nodes.filter(n => n.root).map(n => n.index);
+    while (steps.size > 0) {
+      let available = steps.filter(n => n.root).map(n => n.index);
       available.sort();
       if (available.length > 0) {
         book += available[0];
@@ -50,7 +50,7 @@ class Instructions extends Tree {
 
   clone() {
     let map = [];
-    let parents = this.nodes.filter(n => n.children.size > 0);
+    let parents = this.filter(n => n.children.size > 0);
     for (const [index, parent] of parents) {
       for (const [__, child] of parent.children) {
         map.push([index, child.index]);
@@ -68,7 +68,7 @@ class Instructions extends Tree {
     let update = false;
     let complete = "";
 
-    while (steps.nodes.size > 0 || active > 0) {
+    while (steps.size > 0 || active > 0) {
       for (let i = 0; i < workers; i++) {
         if (task[i] && task[i].complete <= t) {
           update = true;
@@ -84,13 +84,12 @@ class Instructions extends Tree {
       }
       for (let i = 0; i < workers; i++) {
         if (!task[i] && available.length > 0) {
-          update = true;
           let nextTask = available.shift();
           task[i] = {
             task: nextTask.index,
             complete: t + nextTask.value.time
           };
-          steps.nodes.get(nextTask.index).value.assigned = true;
+          steps.get(nextTask.index).value.assigned = true;
           active++;
         }
       }

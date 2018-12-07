@@ -27,6 +27,17 @@ class UMap extends Map {
     return null;
   }
 
+  first(count) {
+    if (count === undefined) return this.values().next().value;
+    if (typeof count !== 'number') throw new TypeError('The count must be a number.');
+    if (!Number.isInteger(count) || count < 1) throw new RangeError('The count must be an integer greater than 0.');
+    count = Math.min(this.size, count);
+    const arr = new Array(count);
+    const iter = this.values();
+    for (let i = 0; i < count; i++) arr[i] = iter.next().value;
+    return arr;
+  }
+
   map(fn) {
     const results = new Array(this.size);
     let i = 0;
@@ -109,26 +120,27 @@ class TreeNode {
   }
 }
 
-class Tree {
-  constructor(nodeMap) {
-    this.nodes = new UMap();
+class Tree extends UMap {
+  constructor(nodeMap, defaultValue = null) {
+    if (nodeMap) {
+      let indexes = new Set();
+      for (const [parent, child] of nodeMap) indexes.add(parent, child);
 
-    // nodeMap must be an iterable of parent/child pairs
-    for (const [parent, child] of nodeMap) {
-      if (!this.nodes.has(parent)) this.nodes.set(parent, new TreeNode(parent));
-      if (!this.nodes.has(child)) this.nodes.set(child, new TreeNode(child));
-      this.connectNodes(parent, child);
+      super(indexes.map(i => ([i, new TreeNode(i, defaultValue)])));
+
+      // nodeMap must be an iterable of parent/child pairs
+      for (const [parent, child] of nodeMap) this.connectNodes(parent, child);
     }
   }
 
-  addNode(index) {
-    this.nodes.set(index, new UMap());
+  addNode(index, value = null) {
+    this.set(index, new TreeNode(index, value));
     return this;
   }
 
   clone() {
     let map = [];
-    let parents = this.nodes.filter(n => n.children.size > 0);
+    let parents = this.filter(n => n.children.size > 0);
     for (const [index, parent] of parents) {
       for (const [__, child] of parent.children) {
         map.push([index, child.index]);
@@ -138,33 +150,21 @@ class Tree {
   }
 
   connectNodes(parent, child) {
-    if (typeof parent == "string") parent = this.nodes.get(parent);
-    if (typeof child == "string") child = this.nodes.get(child);
-
-    this.nodes.get(parent.index).addChild(child);
+    if (typeof parent == "string") parent = this.get(parent);
+    if (typeof child == "string") child = this.get(child);
+    this.get(parent.index).addChild(child);
     return this;
   }
 
-  first(count) {
-    if (count === undefined) return this.values().next().value;
-    if (typeof count !== 'number') throw new TypeError('The count must be a number.');
-    if (!Number.isInteger(count) || count < 1) throw new RangeError('The count must be an integer greater than 0.');
-    count = Math.min(this.size, count);
-    const arr = new Array(count);
-    const iter = this.values();
-    for (let i = 0; i < count; i++) arr[i] = iter.next().value;
-    return arr;
-  }
-
   removeNode(index) {
-    let node = this.nodes.get(index);
+    let node = this.get(index);
     for (const [key, parent] of node.parents) {
       parent.removeChild(node);
     }
     for (const [key, child] of node.children) {
       child.removeParent(node);
     }
-    this.nodes.delete(index);
+    this.delete(index);
   }
 }
 

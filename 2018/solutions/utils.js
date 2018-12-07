@@ -3,6 +3,15 @@ class UMap extends Map {
     super(iterable);
   }
 
+  toArray() {
+    const results = new Array(this.size);
+    let i = 0;
+    for (const [key, value] of this) {
+      results[i++] = value;
+    }
+    return results;
+  }
+
   filter(fn) {
     const results = new UMap();
     for (const [key, value] of this) {

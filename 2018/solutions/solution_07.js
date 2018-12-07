@@ -26,6 +26,13 @@ class Instructions extends Tree {
     }
   }
 
+  get available() {
+    return this.nodes
+      .filter(n => n.root && !n.value.assigned)
+      .toArray()
+      .sort((a, b) => a.index.localeCompare(b.index));
+  }
+
   booklet() {
     let book = "";
     let steps = this.clone();
@@ -57,7 +64,7 @@ class Instructions extends Tree {
     let task = new Array(workers);
     let steps = this.clone();
     let active = 0;
-    let available = steps.nodes.filter(n => n.root && !n.value.assigned).map(n => ({index: n.index, time: n.value.time})).sort((a, b) => a.index.localeCompare(b.index));
+    let available = steps.available;
     let update = false;
     let complete = "";
 
@@ -72,10 +79,7 @@ class Instructions extends Tree {
         }
       }
       if (update) {
-        available = steps.nodes
-          .filter(n => n.root && !n.value.assigned)
-          .map(n => ({index: n.index, time: n.value.time}))
-          .sort((a, b) => a.index.localeCompare(b.index));
+        available = steps.available;
         update = false;
       }
       for (let i = 0; i < workers; i++) {
@@ -84,7 +88,7 @@ class Instructions extends Tree {
           let nextTask = available.shift();
           task[i] = {
             task: nextTask.index,
-            complete: t + nextTask.time
+            complete: t + nextTask.value.time
           };
           steps.nodes.get(nextTask.index).value.assigned = true;
           active++;

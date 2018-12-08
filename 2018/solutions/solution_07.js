@@ -64,8 +64,8 @@ class Instructions extends Tree {
     let task = new Array(workers);
     let steps = this.clone();
     let active = 0;
-    let available = steps.available;
-    let update = false;
+    let available;
+    let update = true;
     let complete = "";
 
     while (steps.size > 0 || active > 0) {

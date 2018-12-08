@@ -130,7 +130,8 @@ class Tree extends UMap {
 
       // nodeMap must be an iterable of parent/child pairs
       for (const [parent, child] of nodeMap) this.connectNodes(parent, child);
-    }
+    } else super();
+    return this;
   }
 
   addNode(index, value = null) {
@@ -150,8 +151,8 @@ class Tree extends UMap {
   }
 
   connectNodes(parent, child) {
-    if (typeof parent == "string") parent = this.get(parent);
-    if (typeof child == "string") child = this.get(child);
+    if (!(parent instanceof TreeNode)) parent = this.get(parent);
+    if (!(child instanceof TreeNode)) child = this.get(child);
     this.get(parent.index).addChild(child);
     return this;
   }

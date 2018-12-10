@@ -47,8 +47,7 @@ class Link {
 const input = parse(fs.readFileSync(`${__dirname}/../input/input_09${config.test ? "_sample" : ""}.txt`, "utf8"));
 
 function play(numPlayers, last) {
-  let players = [];
-  for (let i = 0; i <= numPlayers; i++) players[i] = 0;
+  let players = Array(numPlayers).fill(0, 0, numPlayers);
   let marble = new Link(0, true);
   marble = marble.insertAfter(1);
 
@@ -57,7 +56,6 @@ function play(numPlayers, last) {
       marble = marble.next.insertAfter(i);
     } else {
       let player = (i % numPlayers) + 1;
-      if (!players[player]) players[player] = 0;
       let removed = marble.preceding(7).remove();
       players[i % numPlayers] += i + removed.value;
       marble = removed.next;

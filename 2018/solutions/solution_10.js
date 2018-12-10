@@ -78,7 +78,7 @@ function part1() {
 // Part 2
 function part2() {
   let t = 0;
-  while (!alignment2(input, ++t)) {continue;};
+  while (!alignment(input, ++t)) {continue;};
   return t;
 }
 

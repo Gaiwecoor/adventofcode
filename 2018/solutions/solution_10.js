@@ -18,7 +18,7 @@ const config = {
 const input = fs.readFileSync(`${__dirname}/../input/input_10${config.test ? "_sample" : ""}.txt`, "utf8").trim().split("\n").map(parse);
 
 function alignment(points, t) {
-  let img = new Map();
+  let img = new Set();
   let bound= {
     xmin: false, xminCount: 0, xmax: false, xmaxCount: 0,
     ymin: false, yminCount: 0, ymax: false, ymaxCount: 0
@@ -28,7 +28,7 @@ function alignment(points, t) {
     let pt = points[i];
     let x = pt.x + pt.vx * t;
     let y = pt.y + pt.vy * t;
-    img.set(`${x},${y}`, true);
+    img.add(`${x},${y}`);
     if (bound.xmin === false || (x < bound.xmin)) {
       bound.xmin = x;
       bound.xminCount = 1;
@@ -56,6 +56,7 @@ function alignment(points, t) {
   }
 
   if (bound.ymaxCount > 4 && bound.yminCount > 4) {
+    console.log(img);
     console.log("==========================", t);
     for (let j = bound.ymin; j <= bound.ymax; j++) {
       let row = "";

@@ -48,39 +48,6 @@ class UMap extends Map {
   }
 }
 
-class Set extends Array {
-  add(...values) {
-    for (let i = 0; i < values.length; i++) {
-      if (!this.includes(values[i])) super.push(values[i]);
-    }
-    return this;
-  }
-
-  pop(...values) {
-    return this.remove(...values);
-  }
-
-  push(...values) {
-    return this.add(...values);
-  }
-
-  shift(...elements) {
-    return this.remove(...elements);
-  }
-
-  remove(...elements) {
-    let removed = new Set();
-    for (let i = 0; i < elements.length; i++) {
-      removed.push(this.splice(this.indexOf(elements[i]), 1)[0]);
-    }
-    return removed;
-  }
-
-  unshift(...values) {
-    return this.add(...values);
-  }
-}
-
 class TreeNode {
   constructor(index, value = null) {
     this.index = index;

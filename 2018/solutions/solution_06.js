@@ -2,8 +2,6 @@ const fs = require("fs");
 const input = fs.readFileSync(__dirname + "/../input/input_06.txt", "utf8")
   .trim().split("\n").map(c => c.split(", ").map(d => parseInt(d, 10)));
 
-const {Set} = require("./utils");
-
 const X = 0, Y = 1;
 
 const max = input.reduce((max, pt) => [Math.max(max[X], pt[X]), Math.max(max[Y], pt[Y])], [0, 0]);
@@ -44,7 +42,7 @@ function part1() {
   }
 
   let sizes = pts.map((pt, i) => {
-    if (ignore.includes(i)) return 0;
+    if (ignore.has(i)) return 0;
     else return grid.reduce((total, row) =>
       total + row.reduce((sum, pt) =>
         sum + (pt === i ? 1 : 0)

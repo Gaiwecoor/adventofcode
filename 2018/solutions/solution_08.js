@@ -1,5 +1,5 @@
 const fs = require("fs");
-const {Set, Tree, UMap} = require("./utils");
+const {Tree, UMap} = require("./utils");
 const pattern = /Step (\w+) must be finished before step (\w+) can begin./;
 
 function parse(line) {

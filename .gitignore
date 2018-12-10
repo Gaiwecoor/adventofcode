@@ -3,3 +3,4 @@ __pycache__
 *_sample.txt
 package*.json
 node_modules
+template.js

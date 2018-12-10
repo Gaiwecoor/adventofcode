@@ -56,18 +56,18 @@ function alignment(points, t) {
   }
 
   if (bound.ymaxCount > 4 && bound.yminCount > 4) {
-    console.log(img);
     console.log("==========================", t);
-    for (let j = bound.ymin; j <= bound.ymax; j++) {
+    for (let y = bound.ymin; y <= bound.ymax; y++) {
       let row = "";
-      for (let i = bound.xmin; i <= bound.xmax; i++) {
-        row += (img.has(`${i},${j}`) ? "X": " ");
+      for (let x = bound.xmin; x <= bound.xmax; x++) {
+        row += (img.has(`${x},${y}`) ? "X": " ");
       }
       console.log(row);
     }
     console.log("==========================");
     return t;
   }
+  return false;
 }
 
 // Part 1
@@ -77,12 +77,9 @@ function part1() {
 
 // Part 2
 function part2() {
-  let i = 0;
-  while (true) {
-    let t = alignment(input, i);
-    if (t) return t;
-    i++;
-  }
+  let t = 0;
+  while (!alignment2(input, ++t)) {continue;};
+  return t;
 }
 
 module.exports = { part1, part2 }

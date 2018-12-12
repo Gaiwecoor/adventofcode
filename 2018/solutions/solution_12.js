@@ -84,7 +84,7 @@ class PotLine {
   }
 }
 
-pots = new PotLine(input);
+const pots = new PotLine(input);
 
 function part1() {
   return pots.grow(20).snapshot.sum;

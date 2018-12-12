@@ -68,17 +68,15 @@ class PotLine {
 
   get snapshot() {
     let str = "";
-    let count = 0;
     let sum = 0;
     for (let i = this.min; i <= this.max; i++) {
       if (this.pot(i) == "#") {
-        count++;
         str += "#";
         sum += i;
       } else str += " ";
     }
     str = str.trim();
-    return { count, str, sum };
+    return { str, sum };
   }
 }
 
@@ -92,9 +90,8 @@ function part2() {
   let old = pots.snapshot;
   let now;
   for (var i = 21; i <= 50000000000; i++) {
-    pots.grow();
-    now = pots.snapshot;
-    if (now.str == old.str && now.count == old.count) break;
+    now = pots.grow().snapshot;
+    if (now.str == old.str) break;
     old = now;
   }
   return now.sum + ((50000000000 - i) * (now.sum - old.sum));

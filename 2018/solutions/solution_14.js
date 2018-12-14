@@ -9,10 +9,10 @@ function part1() {
   j = 1;
   while (recipes.length < input + 10) {
     let sum = recipes[i] + recipes[j];
-    if (sum > 9) recipes.push(Math.floor(sum / 10));
-    recipes.push(sum % 10);
-    i += (recipes[i] + 1); i %= recipes.length;
-    j += (recipes[j] + 1); j %= recipes.length;
+    if (sum > 9) recipes.push(Math.floor(sum / 10), sum % 10);
+    else recipes.push(sum);
+    i = (i + recipes[i] + 1) % recipes.length;
+    j = (j + recipes[j] + 1) % recipes.length;
   }
   return recipes.slice(input, input + 10).join("");
 }
@@ -27,14 +27,11 @@ function part2() {
       stringPos++;
     }
     let sum = recipes[i] + recipes[j];
-    if (sum > 9) {
-      recipes.push(Math.floor(sum / 10));
-      string += Math.floor(sum / 10)
-    }
-    recipes.push(sum % 10);
-    string += (sum % 10);
-    i += (recipes[i] + 1); i %= recipes.length;
-    j += (recipes[j] + 1); j %= recipes.length;
+    if (sum > 9) recipes.push(Math.floor(sum / 10), sum % 10);
+    else recipes.push(sum);
+    string += sum;
+    i = (i + recipes[i] + 1) % recipes.length;
+    j = (j + recipes[j] + 1) % recipes.length;
   }
   return position = stringPos + string.indexOf(inStr);
 }

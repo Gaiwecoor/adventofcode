@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Gaiwecoor/adventofcode2018#readme",
   "dependencies": {
-    "md5": "^2.2.1"
+    "md5": "^2.2.1",
+    "pathfinding": "^0.4.18"
   }
 }

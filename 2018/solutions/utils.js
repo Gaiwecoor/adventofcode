@@ -153,6 +153,52 @@ class UMap extends Map {
   }
 }
 
+class Grid extends UMap {
+  constructor() {
+    super();
+    return this;
+  }
+
+  get(...coord) {
+    let key = JSON.stringify(coord);
+    if (super.has(key)) return super.get(key);
+    else if (typeof this.default != "undefined") return this.default;
+    else return undefined;
+  }
+
+  has(...coord) {
+    let key = JSON.stringify(coord);
+    return super.has(key);
+  }
+
+  print() {
+    if (!this.boundaries) return this;
+    for (let y = this.boundaries.yMin; y <= this.boundaries.yMax; y++) {
+      let line = "";
+      for (let x = this.boundaries.xMin; x <= this.boundaries.xMax; x++) {
+        line += this.get(x, y);
+      }
+      console.log(line);
+    }
+    return this;
+  }
+
+  set(value, ...coord) {
+    let key = JSON.stringify(coord);
+    return super.set(key, value);
+  }
+
+  setBoundaries(boundaries) {
+    this.boundaries = boundaries;
+    return this;
+  }
+
+  setDefault(value) {
+    this.default = value;
+    return this;
+  }
+}
+
 class Tree extends UMap {
   constructor(nodeMap, defaultValue = null) {
     if (nodeMap) {
@@ -244,4 +290,4 @@ class USet extends Set {
   }
 }
 
-module.exports = { Chain, Tree, TreeNode, UMap, USet };
+module.exports = { Chain, Grid, Tree, TreeNode, UMap, USet };

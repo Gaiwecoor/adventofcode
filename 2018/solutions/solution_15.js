@@ -254,14 +254,8 @@ function part2() {
     if (army.faction("E").size != elfCount) continue;
 
     let teamHealth = 0;
-    if (army.faction("E").size == 0) {
-      for (let unit of army.faction("G")) {
-        teamHealth += unit.hp;
-      }
-    } else if (army.faction("G").size == 0) {
-      for (let unit of army.faction("E")) {
-        teamHealth += unit.hp;
-      }
+    for (let unit of army.faction("E")) {
+      teamHealth += unit.hp;
     }
     return turn * teamHealth;
   }

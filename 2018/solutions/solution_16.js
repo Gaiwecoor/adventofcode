@@ -3,7 +3,7 @@ const test = false;
 const input = fs.readFileSync(__dirname + `/../input/input_16${test ? "_sample" + sample : ""}.txt`, "utf8").split("\n\n\n");
 const pattern = /Before: (\[\d+, \d+, \d+, \d+\])\n(\d+ \d+ \d+ \d+)\nAfter:  (\[\d+, \d+, \d+, \d+\])/g
 
-var r = [0, 0, 0, 0];
+var r;
 
 class Op {
   constructor(fn) {
@@ -14,17 +14,15 @@ class Op {
   }
 
   test(before, command, after) {
-    let reg1 = JSON.parse(before);
-    let reg2 = JSON.parse(after);
+    r = JSON.parse(before);
+    after = JSON.parse(after);
     let args = command.split(" ").map(i => parseInt(i, 10));
-    r = reg1;
     let op = args.shift();
     this.process(...args);
     for (let i = 0; i < 4; i++) {
-      if (r[i] != reg2[i]) {
+      if (r[i] != after[i]) {
         this.code &= ~(1 << op);
         return false;
-        break;
       }
     }
     return true;

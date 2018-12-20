@@ -93,6 +93,17 @@ class Source {
     return this;
   }
 
+  print() {
+    for (let y = this.grid.boundaries.yMin; y <= this.grid.boundaries.yMax; y++) {
+      let line = "";
+      for (let x = this.grid.boundaries.xMin; x <= this.grid.boundaries.xMax; x++) {
+        line += this.grid.get(x, y);
+      }
+      console.log(line);
+    }
+    return this;
+  }
+
   settle(sourceX, y) {
     if (this.canSettle(sourceX, y)) {
       let x = sourceX;

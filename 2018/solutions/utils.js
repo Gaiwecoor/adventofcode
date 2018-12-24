@@ -151,6 +151,10 @@ class UMap extends Map {
     }
     return results;
   }
+
+  sort(fn = (a, b) => +(a > b) || +(a === b) - 1) {
+    return new UMap([...this.entries()].sort((a, b) => fn(a[1], b[1], a[0], b[0])));
+  }
 }
 
 class Grid extends UMap {
@@ -287,6 +291,10 @@ class USet extends Set {
     let i = 0;
     for (const item of this) results[i++] = fn(item);
     return results;
+  }
+
+  sort(fn = (a, b) => (a > b) || (a === b) - 1) {
+    return new USet([...this.values()].sort((a, b) => fn(a, b)));
   }
 }
 

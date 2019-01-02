@@ -6,235 +6,62 @@ const input = fs.readFileSync(__dirname + `/../input/input_22${test ? "_sample" 
 const depth = parseInt(input[0].replace("depth: ", ""), 10);
 const target = input[1].replace("target: ", "").split(",").map(i => parseInt(i, 10));
 const [X, Y] = [0, 1];
-const hScale = [
-  10/7,
-  1,
-  1070/1021,
-  1064/1029,
-  1074/1025,
-  1062/1027,
-][4];
-function getNext(open, closed) {
-  let list = open.toArray().sort((a, b) => {
-    if (a.f != b.f) return a.f - b.f;
-    if (a.h != b.h) return b.h - a.h;
-    return b.cost - a.cost;
-  });
-  let next = list.shift();
 
-  if (!next.isTarget) return next;
-  else {
-    let ready = 0;
-    for (let adjacent of next.adjacent) {
-      if (closed.has(adjacent)) ready++;
-    }
-    if (ready == 4) return next;
-    else return list.shift();
-  }
-}
-
-class PathPoint {
-  constructor(state) {
-    // state: {x*, y*, type*}
-    this.x = state.x;
-    this.y = state.y;
-    this.type = state.type;
-    this.equipped = state.equipped;
-    this.cost = 0;
-    this.h = null;
-    if (state.parent) this.setParent(state.parent);
-    else if (state.target) this.setTarget(state.target);
-
-    this.adjacent = new USet([`${this.x+1},${this.y}`, `${this.x},${this.y+1}`]);
-    if (this.y > 0) this.adjacent.add(`${this.x},${this.y-1}`);
-    if (this.x > 0) this.adjacent.add(`${this.x-1},${this.y}`);
-    return this;
-  }
-
-  equip(type) {
-    this.equipped = type;
-    return this;
-  }
-
-  get f() {
-    return this.cost + this.h;
-  }
-
-  get path() {
-    let step = this;
-    let record = [step];
-    while (step = step.parent) record.push(step);
-    return record.reverse();
-  }
-
-  print() {
-    console.log(this.label);
-    let next = this;
-    while (next = next.parent) console.log(next.label);
-    return this;
-  }
-
-  get isTarget() {
-    return (this.x == this.target[X] && this.y == this.target[Y]);
-  }
-
-  get label() {
-    return `${this.x},${this.y}`;
-  }
-
-  setParent(ppt) {
-    this.setTarget(ppt.target);
-    this.parent = ppt;
-
-    let cost = ppt.cost + 1;
-    if (this.type === ppt.equipped) {
-      cost += 7;
-      this.equipped = 3 - ppt.type - this.type;
-    } else this.equipped = ppt.equipped;
-    if (this.x == this.target[X] && this.y == this.target[Y] && this.equipped != 1) cost += 7;
-    this.cost = cost;
-    return this;
-  }
-
-  setTarget(x, y = null) {
-    if (Array.isArray(x)) [x, y] = x;
-    this.target = [x, y];
-    this.h = (Math.abs(this.x - this.target[X]) + Math.abs(this.y - this.target[Y])) * hScale;
-    return this;
-  }
-}
+const border = 150;
 
 class Cave {
   constructor(depth, target) {
+    this.locations = new UMap();
     this.depth = depth;
     this.target = target;
-    this.regions = new Map();
-    this.reset();
-
-    for (let y = 0; y <= this.target[Y]; y++) {
-      for (let x = 0; x <= this.target[X]; x++) {
-        this.point(x, y);
-      }
-    }
     return this;
   }
 
-  pathd() {
-    const pt = (x, y) => {
-      if (Array.isArray(x)) [x, y] = x;
-      return `${x},${y}`;
-    };
-    let locations = new UMap();
-
-    const tPt = pt(this.target);
-    const grid = {x: this.target[X] * 6, y: this.target[Y] * 1.2};
-console.info("Initializing Grid...");
-    for (let y = 0; y <= grid.y; y++) {
-      for (let x = 0; x <= grid.x; x++) {
-        locations.set(pt(x, y), {pt: [x, y], cost: Infinity, equipped: null, type: this.point(x, y).type, parent: null});
-      }
-    }
-    locations.set("0,0", {pt: [0, 0], cost: 0, equipped: 1, type: 0, parent: null});
-
-    let unvisited = new USet(locations.keys());
-
-    let step = [0, 0];
-console.info("Starting pathfinding...");
-    while (step) {
-      let [x, y] = step;
-      let source = locations.get(pt(step));
-      // compile neighbor set.
-      const neighbors = new Set();
-      if (x < grid.x) neighbors.add(pt(x + 1, y)); // console.log("Hit edge at", step);
-      if (y < grid.y) neighbors.add(pt(x, y + 1)); else console.log("Hit edge at", step);
-      if (x > 0) neighbors.add(pt(x - 1, y));
-      if (y > 0) neighbors.add(pt(x, y - 1));
-
-      for (const neighbor of neighbors) {
-        let assigned = locations.get(neighbor);
-
-        let adj = {
-          pt: assigned.pt,
-          cost: source.cost + 1,
-          equipped: source.equipped,
-          type: assigned.type,
-          parent: pt(step)
-        };
-
-        if (adj.type === source.equipped) {
-          adj.cost += 7;
-          adj.equipped = 3 - adj.type - source.type;
-        }
-        if (neighbor == tPt && adj.equipped != 1) adj.cost += 7;
-
-        if (adj.cost < assigned.cost) locations.set(neighbor, adj);
-      }
-      unvisited.delete(pt(step));
-
-      if (pt(step) == tPt) break;
-
-      let next = unvisited
-        .map(p => locations.get(p))
-        .filter(p => p.cost < Infinity)
-        .sort((a, b) => a.cost - b.cost)[0];
-      if (next) step = next.pt;
-      else return {cost: 0};
-    }
-
-    return locations.get(pt(step));
-  }
-
-  pathfinder(display = false) {
-    this.open = new UMap();
-    this.closed = new UMap();
-
-    let step = new PathPoint({x: 0, y: 0, type: this.point(0, 0).type, equipped: 1, target: this.target});
-
-    this.closed.set(step.label, step);
-
+  findPath() {
+    let open = new UMap();
+    let source = this.pt(0, 0);
+    source.state[1].cost = 0;
     let i = 0;
-
-    while(step && !step.isTarget) {
-      for (let point of step.adjacent) {
-        if (this.closed.has(point)) continue;
-        else {
-          const [x, y] = point.split(",").map(i => parseInt(i, 10));
-          const ppt = new PathPoint({x: x, y: y, type: this.point(x, y).type, parent: step});
-
-          if (this.open.has(ppt.label) && ppt.cost >= this.open.get(ppt.label).cost) continue;
-          this.open.set(ppt.label, ppt);
+    while (source && !source.isTarget) {
+      let state = source.state.toMap;
+if (++i % 1000 == 0) console.log(i, source.label, state.equipped);
+      for (let neighbor of source.neighbors) {
+        neighbor = this.pt(neighbor);
+        let cost = state.cost + 1;
+        let equip = state.equipped;
+        if (neighbor.type == state.equipped) {
+          cost += 7;
+          equip = 3 - source.type - neighbor.type;
+        }
+        if (neighbor.isTarget && equip != 1) cost += 7;
+        if (neighbor.isTarget) console.log("CHECKING TARGET", equip);
+        if ((neighbor.state[equip].cost === null) || (neighbor.state[equip].cost > cost)) {
+          neighbor.state[equip].cost = cost;
+          neighbor.state[equip].parent = source;
+          neighbor.state[equip].mapped = false;
         }
       }
-      if (step = getNext(this.open, this.closed)) {
-        this.closed.set(step.label, step);
-        this.open.delete(step.label);
-      }
-      //if (++i % 10000 == 0 && display) this.print();
+      state.mapped = true;
+
+      source = this.locations
+        .filter(pt => pt.state.cost !== null)
+        .sort((a, b) => (a.state.cost != b.state.cost ? a.state.cost - b.state.cost : a.h - b.h))
+        .first();
     }
-    if (display) this.print(step);
-    return step;
+    return source;
   }
 
-  point(x, y = null) {
+  pt(x, y = null) {
     if (Array.isArray(x)) [x, y] = x;
-    let pt = `${x},${y}`;
-    if (this.regions.has(pt)) return this.regions.get(pt);
-    else {
-      let region = {};
-      // Set Geologic Index
-      if (x == 0 && y == 0) region.geology = 0;
-      else if (x == this.target[0] && y == this.target[1]) region.geology = 0;
-      else if (y == 0) region.geology = x * 16807;
-      else if (x == 0) region.geology = y * 48271;
-      else region.geology = this.point(x-1, y).erosion * this.point(x, y-1).erosion;
-      // Set Erosion Level
-      region.erosion = (region.geology + this.depth) % 20183;
-      // Set Terrain
-      region.type = (region.erosion % 3); // Rocky = 0, Wet = 1, Narrow = 2
+    else if (x.x && x.y) [x, y] = [x.x, x.y];
+    else if (typeof x == "string") [x, y] = x.split(",").map(i => parseInt(i, 10));
 
-      this.regions.set(pt, region);
-      return region;
-    }
+    if (this.locations.has(`${x},${y}`)) return this.locations.get(`${x},${y}`);
+
+    let point = new Point(x, y);
+    this.locations.set(point.label, point);
+
+    return point;
   }
 
   print(step = null) {
@@ -252,18 +79,19 @@ console.info("Starting pathfinding...");
 
     let path = new Set();
     if (step) {
-      path.add(step.label);
-      while (step = step.parent) path.add(step.label);
+      do path.add(step.label);
+      while (step = step.parent);
     }
     for (let y = 0; y <= this.target[Y] * 1.01 + 2; y++) {
       let line = "";
       for (let x = 0; x <= this.target[X] * 5; x++) {
-        let pt = `${x},${y}`;
+        let pt = this.pt(`${x},${y}`);
         let color = null;
-        if (path.has(pt)) color = colors.Green;
-        else if (this.closed && this.closed.has(pt)) color = colors.Red;
-        else if (this.open && this.open.has(pt)) color = colors.Blue;
-        let symbol = ((x == this.target[X] && y == this.target[Y]) ? "X" : [".", "=", "|"][this.point(x, y).type]);
+        if (path.has(pt.label) && pt.parent && pt.equipped != pt.parent.equipped) color = colors.Yellow;
+        else if (path.has(pt.label)) color = colors.Green;
+        else if (pt.mapped) color = colors.Red;
+        else if (pt.cost !== null) color = colors.Blue;
+        let symbol = (pt.isTarget ? "X" : [".", "=", "|"][pt.type]);
 
         line += (color ? color : "") + symbol + (color ? colors.Reset : "");
       }
@@ -273,23 +101,91 @@ console.info("Starting pathfinding...");
     return this;
   }
 
-  reset() {
-    this.position = [0, 0];
-    this.equipped = 1;
-    this.time = 0;
-    return this;
-  }
-
   get risk() {
     let risk = 0;
-    for (let y = 0; y <= this.target[1]; y++) {
-      for (let x = 0; x <= this.target[0]; x++) {
-        risk += this.regions.get(`${x},${y}`).type;
+    for (let x = 0; x <= this.target[X]; x++) {
+      for (let y = 0; y <= this.target[Y]; y++) {
+        risk += this.pt(x, y).type;
       }
     }
     return risk;
   }
-};
+}
+
+class State extends Array {
+  constructor(type) {
+    super(3);
+    //this.point = pt;
+    for (let i = 0; i < 3; i++) {
+      if (i == type) this[i] = null;
+      else this[i] = {
+        cost: null,
+        equipped: i,
+        mapped: false,
+        parent: null
+      };
+    }
+    return this;
+  }
+
+  get cost() {
+    let state = this.toMap;
+    let cost = (state ? state.cost : null);
+    return (state ? state.cost : null);
+  }
+
+  get toMap() {
+    let state = null;
+    for (let i = 0; i < 3; i++) {
+      if (this[i] && this[i].cost !== null && !this[i].mapped && (state === null || this[i].cost < state.cost)) state = this[i];
+    }
+    return state;
+  }
+}
+
+class Point {
+  constructor(x, y = null) {
+    if (Array.isArray(x)) [x, y] = x;
+    else if (x.x && x.y) [x, y] = [x.x, x.y];
+    else if (typeof x == "string") [x, y] = x.split(",").map(i => parseInt(i, 10));
+
+    this.x = x;
+    this.y = y;
+    this.h = Math.abs(this.x - target[X]) + Math.abs(this.y - target[Y]);
+    this.label = `${x},${y}`;
+    this.isTarget = (this.h === 0);
+
+    if (x == target[X] && y == target[Y]) this.geo_index = 0;
+    else if (y == 0) this.geo_index = x * 16807;
+    else if (x == 0) this.geo_index = y * 48271;
+    else this.geo_index = cave.pt(x - 1, y).erosion * cave.pt(x, y - 1).erosion;
+
+    this.erosion = (this.geo_index + depth) % 20183;
+    this.type = this.erosion % 3;
+
+    this.state = new State(this.type);
+
+    this.neighbors = new USet();
+    if (x > 0) this.neighbors.add(`${x - 1},${y}`);
+    if (x < border) this.neighbors.add(`${x + 1},${y}`);
+    if (y > 0) this.neighbors.add(`${x},${y - 1}`);
+    this.neighbors.add(`${x},${y + 1}`);
+
+    return this;
+  }
+
+  distance(pt) {
+    return Math.abs(this.x - pt.x) + Math.abs(this.y - pt.y);
+  }
+
+  get path() {
+    let step = this;
+    do {
+      console.log(step.label, step.equipped, step.cost);
+    } while (step = step.parent);
+    return this.cost;
+  }
+}
 
 const cave = new Cave(depth, target);
 
@@ -300,10 +196,9 @@ function part1() {
 
 // Part 2
 function part2() {
-  let value = cave.pathfinder();
-  return value.cost;
-  // 1070 high
-  // 1043 target?
+  let path = cave.findPath();
+  //cave.print(path);
+  return path.state.cost;
 }
 
-module.exports = { part1, part2 }
+module.exports = { part1, part2, Cave, Point };

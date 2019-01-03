@@ -37,22 +37,11 @@ class Point {
   }
 
   reaches(range) {
-    let aligns = 0;
-    const [X, Y, Z] = [4, 2, 1];
-    if (range.x <= this.x && range.x + range.dx - 1 >= this.x) aligns += X;
-    if (range.y <= this.y && range.y + range.dy - 1 >= this.y) aligns += Y;
-    if (range.z <= this.z && range.z + range.dz - 1 >= this.z) aligns += Z;
-
     let pt = {
-      x: closer(this.x, range.x, range.x + range.dx - 1),
-      y: closer(this.y, range.y, range.y + range.dy - 1),
-      z: closer(this.z, range.z, range.z + range.dz - 1)
+      x: ((range.minx <= this.x && range.maxx >= this.x) ? this.x : closer(this.x, range.minx, range.maxx)),
+      y: ((range.miny <= this.y && range.maxy >= this.y) ? this.y : closer(this.y, range.miny, range.maxy)),
+      z: ((range.minz <= this.z && range.maxz >= this.z) ? this.z : closer(this.z, range.minz, range.maxz)),
     };
-    if (aligns == 7) return true; // Type A: Point inside range
-
-    if (aligns & X) pt.x = this.x;
-    if (aligns & Y) pt.y = this.y;
-    if (aligns & Z) pt.z = this.z;
 
     return (this.distance(pt) <= this.r);
   }
@@ -72,49 +61,33 @@ function part1() {
 
 // Part 2
 function part2() {
-  let sub = 10;
-
-  totalRange.x = totalRange.maxx - totalRange.minx;
-  totalRange.y = totalRange.maxy - totalRange.miny;
-  totalRange.z = totalRange.maxz - totalRange.minz;
-
-  let divide = true;
-
+  const sub = 5;
+  let subdivide = true;
   let ranges = new Set([totalRange]);
-let k = 0;
-  while (divide) {
-    k++
-    let newRanges = new Set();
-    divide = false;
+
+  while (subdivide) {
+    let newRanges;
+    subdivide = false;
     for (const range of ranges) {
       let maxCount = null;
-      let dx = Math.ceil((range.maxx - range.minx) / sub);
-      let dy = Math.ceil((range.maxy - range.miny) / sub);
-      let dz = Math.ceil((range.maxz - range.minz) / sub);
-      divide = (divide || dx > 1 || dy > 1 || dz > 1);
-      let j = 0;
+      const [dx, dy, dz] = [Math.ceil((range.maxx - range.minx) / sub), Math.ceil((range.maxy - range.miny) / sub), Math.ceil((range.maxz - range.minz) / sub)];
+      subdivide = (subdivide || dx > 1 || dy > 1 || dz > 1);
       for (let x = range.minx; x < range.maxx; x += dx) {
         for (let y = range.miny; y < range.maxy; y += dy) {
           for (let z = range.minz; z < range.maxz; z += dz) {
-            let minx = x;
-            let miny = y;
-            let minz = z;
-            let maxx = x + dx - 1;
-            let maxy = y + dy - 1;
-            let maxz = z + dz - 1;
-            let region = {x, y, z, dx, dy, dz, maxx, maxy, maxz, minx, miny, minz, j};
+            const [minx, miny, minz] = [x, y, z];
+            const [maxx, maxy, maxz] = [x + dx - 1, y + dy - 1, z + dz - 1];
+            let region = {maxx, maxy, maxz, minx, miny, minz};
             let count = 0;
             for (let i = 0; i < bots.length; i++) {
               if (bots[i].reaches(region)) count++;
             }
-            region.count = count;
             if (maxCount == null || count > maxCount) {
               newRanges = new Set([region]);
               maxCount = count;
             } else if (maxCount == count) {
               newRanges.add(region);
             }
-            j++;
           }
         }
       }
@@ -124,10 +97,10 @@ let k = 0;
 
   let short = null;
   for (point of ranges) {
-    let d = Math.abs(point.x) + Math.abs(point.y) + Math.abs(point.z);
+    let d = Math.abs(point.minx) + Math.abs(point.miny) + Math.abs(point.minz);
     if (short == null || d < short) short = d;
   }
   return short;
 }
-// 41588937 Low
+
 module.exports = { part1, part2 }

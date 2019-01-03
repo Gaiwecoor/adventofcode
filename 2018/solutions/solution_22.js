@@ -1,6 +1,6 @@
 const fs = require("fs");
 const test = false;
-const {UMap, USet} = require("./utils");
+const {UMap} = require("./utils");
 const input = fs.readFileSync(__dirname + `/../input/input_22${test ? "_sample" : ""}.txt`, "utf8").trim().split("\n");
 
 const depth = parseInt(input[0].replace("depth: ", ""), 10);
@@ -19,33 +19,37 @@ class Cave {
 
   findPath() {
     let open = new UMap();
-    let source = this.pt(0, 0);
-    source.state[1].cost = 0;
-    let i = 0;
+    let closed = new UMap();
+    let source = this.pt(0, 0).clone();
+    source.equip(1).cost = 0;
+
     while (source && !source.isTarget) {
-      let state = source.state.toMap;
-if (++i % 1000 == 0) console.log(i, source.label, state.equipped);
       for (let neighbor of source.neighbors) {
-        neighbor = this.pt(neighbor);
-        let cost = state.cost + 1;
-        let equip = state.equipped;
-        if (neighbor.type == state.equipped) {
+        neighbor = this.pt(neighbor).clone();
+        let cost = source.cost + 1;
+        let equip = source.equipped;
+        if (neighbor.type == source.equipped) {
           cost += 7;
           equip = 3 - source.type - neighbor.type;
         }
-        if (neighbor.isTarget && equip != 1) cost += 7;
-        if (neighbor.isTarget) console.log("CHECKING TARGET", equip);
-        if ((neighbor.state[equip].cost === null) || (neighbor.state[equip].cost > cost)) {
-          neighbor.state[equip].cost = cost;
-          neighbor.state[equip].parent = source;
-          neighbor.state[equip].mapped = false;
+        if (neighbor.isTarget && equip != 1) {
+          cost += 7;
+          equip = 1;
+        };
+
+        neighbor.equip(equip);
+        neighbor.cost = cost;
+        neighbor.parent = source;
+
+        if (!closed.has(neighbor.label) && (!open.has(neighbor.label) || (open.get(neighbor.label).cost > cost))) {
+          open.set(neighbor.label, neighbor);
         }
       }
-      state.mapped = true;
+      closed.set(source.label, source);
+      open.delete(source.label);
 
-      source = this.locations
-        .filter(pt => pt.state.cost !== null)
-        .sort((a, b) => (a.state.cost != b.state.cost ? a.state.cost - b.state.cost : a.h - b.h))
+      source = open
+        .sort((a, b) => (a.cost != b.cost ? a.cost - b.cost : a.h - b.h))
         .first();
     }
     return source;
@@ -77,9 +81,9 @@ if (++i % 1000 == 0) console.log(i, source.label, state.equipped);
       White: "\x1b[37m"
     };
 
-    let path = new Set();
+    let path = new Map();
     if (step) {
-      do path.add(step.label);
+      do path.set(step.shortLabel, step);
       while (step = step.parent);
     }
     for (let y = 0; y <= this.target[Y] * 1.01 + 2; y++) {
@@ -87,10 +91,7 @@ if (++i % 1000 == 0) console.log(i, source.label, state.equipped);
       for (let x = 0; x <= this.target[X] * 5; x++) {
         let pt = this.pt(`${x},${y}`);
         let color = null;
-        if (path.has(pt.label) && pt.parent && pt.equipped != pt.parent.equipped) color = colors.Yellow;
-        else if (path.has(pt.label)) color = colors.Green;
-        else if (pt.mapped) color = colors.Red;
-        else if (pt.cost !== null) color = colors.Blue;
+        if (path.has(pt.label)) color = [colors.Red, colors.Yellow, colors.Blue][path.get(pt.label).equipped];
         let symbol = (pt.isTarget ? "X" : [".", "=", "|"][pt.type]);
 
         line += (color ? color : "") + symbol + (color ? colors.Reset : "");
@@ -112,37 +113,6 @@ if (++i % 1000 == 0) console.log(i, source.label, state.equipped);
   }
 }
 
-class State extends Array {
-  constructor(type) {
-    super(3);
-    //this.point = pt;
-    for (let i = 0; i < 3; i++) {
-      if (i == type) this[i] = null;
-      else this[i] = {
-        cost: null,
-        equipped: i,
-        mapped: false,
-        parent: null
-      };
-    }
-    return this;
-  }
-
-  get cost() {
-    let state = this.toMap;
-    let cost = (state ? state.cost : null);
-    return (state ? state.cost : null);
-  }
-
-  get toMap() {
-    let state = null;
-    for (let i = 0; i < 3; i++) {
-      if (this[i] && this[i].cost !== null && !this[i].mapped && (state === null || this[i].cost < state.cost)) state = this[i];
-    }
-    return state;
-  }
-}
-
 class Point {
   constructor(x, y = null) {
     if (Array.isArray(x)) [x, y] = x;
@@ -153,7 +123,11 @@ class Point {
     this.y = y;
     this.h = Math.abs(this.x - target[X]) + Math.abs(this.y - target[Y]);
     this.label = `${x},${y}`;
+    this.shortLabel = `${x},${y}`;
     this.isTarget = (this.h === 0);
+
+    this.equipped = null;
+    this.cost = null;
 
     if (x == target[X] && y == target[Y]) this.geo_index = 0;
     else if (y == 0) this.geo_index = x * 16807;
@@ -163,9 +137,7 @@ class Point {
     this.erosion = (this.geo_index + depth) % 20183;
     this.type = this.erosion % 3;
 
-    this.state = new State(this.type);
-
-    this.neighbors = new USet();
+    this.neighbors = new Set();
     if (x > 0) this.neighbors.add(`${x - 1},${y}`);
     if (x < border) this.neighbors.add(`${x + 1},${y}`);
     if (y > 0) this.neighbors.add(`${x},${y - 1}`);
@@ -174,14 +146,24 @@ class Point {
     return this;
   }
 
+  clone() {
+    return new Point(this.x, this.y);
+  }
+
   distance(pt) {
     return Math.abs(this.x - pt.x) + Math.abs(this.y - pt.y);
+  }
+
+  equip(equipped) {
+    this.equipped = equipped;
+    this.label = `${this.x},${this.y}${(this.equipped !== null ? "," + this.equipped : "")}`;
+    return this;
   }
 
   get path() {
     let step = this;
     do {
-      console.log(step.label, step.equipped, step.cost);
+      console.log(step.label, step.cost);
     } while (step = step.parent);
     return this.cost;
   }
@@ -196,9 +178,7 @@ function part1() {
 
 // Part 2
 function part2() {
-  let path = cave.findPath();
-  //cave.print(path);
-  return path.state.cost;
+  return cave.findPath().cost;
 }
 
 module.exports = { part1, part2, Cave, Point };

@@ -1,21 +1,21 @@
 {
-  "name": "adventofcode2018",
+  "name": "adventofcode",
   "version": "1.3.0",
-  "description": "My solutions for Advent of Code 2018",
+  "description": "My solutions for Advent of Code",
   "main": "solve.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Gaiwecoor/adventofcode2018.git"
+    "url": "git+https://github.com/Gaiwecoor/adventofcode.git"
   },
   "author": "Kevin \"Gaiwecoor\" Dixon",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Gaiwecoor/adventofcode2018/issues"
+    "url": "https://github.com/Gaiwecoor/adventofcode/issues"
   },
-  "homepage": "https://github.com/Gaiwecoor/adventofcode2018#readme",
+  "homepage": "https://github.com/Gaiwecoor/adventofcode#readme",
   "dependencies": {
     "md5": "^2.2.1",
     "pathfinding": "^0.4.18"

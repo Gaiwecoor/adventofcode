@@ -7,13 +7,14 @@ const depth = parseInt(input[0].replace("depth: ", ""), 10);
 const target = input[1].replace("target: ", "").split(",").map(i => parseInt(i, 10));
 const [X, Y] = [0, 1];
 
-const border = 150;
+const border = 4 * target[X];
 
 class Cave {
   constructor(depth, target) {
     this.locations = new UMap();
     this.depth = depth;
     this.target = target;
+    this.path = null;
     return this;
   }
 
@@ -49,10 +50,13 @@ class Cave {
       open.delete(source.label);
 
       source = open
-        .sort((a, b) => (a.cost != b.cost ? a.cost - b.cost : a.h - b.h))
+        .sort((a, b) => (a.cost + a.h) - (b.cost + a.h))
         .first();
     }
-    return source;
+
+    this.path = source;
+    this.closed = closed;
+    return this;
   }
 
   pt(x, y = null) {
@@ -68,7 +72,7 @@ class Cave {
     return point;
   }
 
-  print(step = null) {
+  print() {
     const colors = {
       Reset: "\x1b[0m",
       Black: "\x1b[30m",
@@ -81,17 +85,20 @@ class Cave {
       White: "\x1b[37m"
     };
 
-    let path = new Map();
-    if (step) {
+    const path = new Map();
+
+    if (this.path) {
+      let step = this.path;
       do path.set(step.shortLabel, step);
       while (step = step.parent);
     }
     for (let y = 0; y <= this.target[Y] * 1.01 + 2; y++) {
       let line = "";
-      for (let x = 0; x <= this.target[X] * 5; x++) {
+      for (let x = 0; x <= border; x++) {
         let pt = this.pt(`${x},${y}`);
         let color = null;
         if (path.has(pt.label)) color = [colors.Red, colors.Yellow, colors.Blue][path.get(pt.label).equipped];
+        else if (this.closed.has(pt.label+",0") || this.closed.has(pt.label+",1") || this.closed.has(pt.label+",2")) color = colors.Cyan;
         let symbol = (pt.isTarget ? "X" : [".", "=", "|"][pt.type]);
 
         line += (color ? color : "") + symbol + (color ? colors.Reset : "");
@@ -102,7 +109,7 @@ class Cave {
     return this;
   }
 
-  get risk() {
+  risk() {
     let risk = 0;
     for (let x = 0; x <= this.target[X]; x++) {
       for (let y = 0; y <= this.target[Y]; y++) {
@@ -157,14 +164,14 @@ class Point {
   equip(equipped) {
     this.equipped = equipped;
     this.label = `${this.x},${this.y}${(this.equipped !== null ? "," + this.equipped : "")}`;
+    this.h = Math.abs(this.x - target[X]) + Math.abs(this.y - target[Y]) + (equipped == 1 ? 0 : 7);
     return this;
   }
 
-  get path() {
+  path() {
     let step = this;
-    do {
-      console.log(step.label, step.cost);
-    } while (step = step.parent);
+    do console.log(step.label, step.cost);
+    while (step = step.parent);
     return this.cost;
   }
 }
@@ -173,12 +180,12 @@ const cave = new Cave(depth, target);
 
 // Part 1
 function part1() {
-  return cave.risk;
+  return cave.risk();
 }
 
 // Part 2
 function part2() {
-  return cave.findPath().cost;
+  return cave.findPath().path.cost;
 }
 
-module.exports = { part1, part2, Cave, Point };
+module.exports = { part1, part2 };
